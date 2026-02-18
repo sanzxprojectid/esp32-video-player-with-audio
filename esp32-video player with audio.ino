@@ -1,4 +1,4 @@
-//esp32-video player with audio by over-dev
+//esp32-video player with audio by sanzx-dev
 // Features:
 //   - MJPEG playback dari SD card  (24 fps, frame-deadline sync)
 //   - Audio sync via DAC GPIO26 (WAV 8000Hz mono 8-bit)
