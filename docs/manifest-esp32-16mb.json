@@ -4,7 +4,7 @@
     {
       "chipFamily": "ESP32",
       "parts": [
-        { "path": "video_player_with_audio.merged.bin", "offset": 0 }
+        { "path": "video_player_with_audio.bin", "offset": 0 }
       ]
     }
   ]
