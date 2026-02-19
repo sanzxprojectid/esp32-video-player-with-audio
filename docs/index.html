@@ -5,112 +5,881 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP Web Flasher</title>
     <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #0f0f0f;
+            --surface: #171717;
+            --surface2: #1e1e1e;
+            --surface3: #242424;
+            --border: #262626;
+            --border-hover: #383838;
+            --text: #e4e4e4;
+            --text-dim: #787878;
+            --text-muted: #424242;
+            --accent: #d4a853;
+            --accent-dim: rgba(212,168,83,0.1);
+            --accent-border: rgba(212,168,83,0.22);
+            --green: #4caf7d;
+            --green-dim: rgba(76,175,125,0.1);
+            --green-border: rgba(76,175,125,0.22);
+            --red: #e06c6c;
+            --red-dim: rgba(224,108,108,0.07);
+            --red-border: rgba(224,108,108,0.2);
+            --warn-dim: rgba(200,146,42,0.07);
+            --warn-border: rgba(200,146,42,0.2);
+            --chip2: #9a7d68;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            max-width: 720px;
             margin: 0 auto;
-            padding: 40px 20px;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f9f9f9;
+            padding: 56px 24px 100px;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+        /* ── HEADER ── */
+        .eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 14px;
+            opacity: 0;
+            animation: fadeUp 0.5s ease 0.05s forwards;
         }
+
         h1 {
-            color: #000;
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(1.9rem, 4vw, 2.7rem);
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.8px;
+            line-height: 1.1;
             margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeUp 0.5s ease 0.1s forwards;
         }
-        .warning {
-            background-color: #fff3cd;
-            border-left: 5px solid #ffc107;
-            color: #856404;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .error {
-            background-color: #f8d7da;
-            border-left: 5px solid #dc3545;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .firmware-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            transition: transform 0.2s;
-        }
-        .firmware-section:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        h2 {
-            margin-top: 0;
-            color: #007bff;
-            font-size: 1.4rem;
-        }
-        ul {
-            padding-left: 20px;
-            margin-bottom: 0;
-        }
-        li {
-            margin-bottom: 5px;
-        }
-        .footer {
-            margin-top: 40px;
+
+        .subtitle {
             font-size: 0.9rem;
-            color: #666;
+            color: var(--text-dim);
+            font-weight: 300;
+            line-height: 1.65;
+            max-width: 440px;
+            opacity: 0;
+            animation: fadeUp 0.5s ease 0.15s forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rule { height: 1px; background: var(--border); margin: 32px 0; opacity: 0; animation: fadeUp 0.5s ease 0.2s forwards; }
+
+        /* ── STEPPER ── */
+        .stepper {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeUp 0.5s ease 0.25s forwards;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+            cursor: default;
+        }
+
+        .step-connector {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            margin-top: 14px;
+            transition: background 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-connector.active {
+            background: var(--border);
+        }
+
+        .step-connector-fill {
+            position: absolute;
+            inset: 0;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .step-connector.done .step-connector-fill { transform: scaleX(1); }
+
+        .step-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            transition: all 0.35s ease;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .step-item.active .step-circle {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-dim);
+        }
+
+        .step-item.done .step-circle {
+            border-color: var(--green);
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .step-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 7px;
             text-align: center;
+            transition: color 0.3s;
+        }
+
+        .step-item.active .step-label { color: var(--accent); }
+        .step-item.done .step-label { color: var(--text-dim); }
+
+        /* ── PANELS ── */
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+            animation: panelIn 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
+        }
+
+        .panel.out {
+            animation: panelOut 0.25s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateX(18px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes panelOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(-18px); }
+        }
+
+        /* ── PANEL 1: SAFETY ── */
+        .alert {
+            display: flex;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid;
+        }
+
+        .alert.warning { background: var(--warn-dim); border-color: var(--warn-border); }
+        .alert.error { background: var(--red-dim); border-color: var(--red-border); }
+
+        .alert-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+
+        .alert-body { font-size: 0.875rem; line-height: 1.7; }
+        .alert.warning .alert-body { color: #c8a060; }
+        .alert.error .alert-body { color: #c07070; }
+        .alert-body strong { font-weight: 600; filter: brightness(1.25); }
+        .alert-body ul { padding-left: 16px; margin-top: 8px; }
+        .alert-body li { margin-bottom: 5px; }
+
+        .confirm-check {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            padding: 16px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+            user-select: none;
+        }
+
+        .confirm-check:hover { border-color: var(--border-hover); background: var(--surface2); }
+        .confirm-check.checked { border-color: var(--green-border); background: var(--green-dim); }
+
+        .check-box {
+            width: 18px; height: 18px;
+            border: 1.5px solid var(--border-hover);
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            background: var(--surface3);
+        }
+
+        .confirm-check.checked .check-box {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .check-mark {
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .confirm-check.checked .check-mark { opacity: 1; transform: scale(1); }
+
+        .check-label { font-size: 0.875rem; color: var(--text-dim); line-height: 1.4; }
+        .confirm-check.checked .check-label { color: var(--text); }
+
+        /* ── PANEL 2: SELECT BOARD ── */
+        .section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .board-grid { display: grid; gap: 10px; }
+
+        .board-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        .board-card:hover {
+            border-color: var(--border-hover);
+            background: var(--surface2);
+            transform: translateX(4px);
+        }
+
+        .board-card.selected {
+            border-color: var(--card-accent, var(--accent));
+            background: var(--surface2);
+            box-shadow: inset 3px 0 0 var(--card-accent, var(--accent));
+        }
+
+        .board-card-1 { --card-accent: var(--accent); }
+        .board-card-2 { --card-accent: var(--chip2); }
+        .board-card-3 { --card-accent: var(--green); }
+
+        .board-icon {
+            width: 40px; height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            background: var(--surface3);
+            transition: all 0.25s;
+        }
+
+        .board-card.selected .board-icon {
+            border-color: var(--card-accent, var(--accent));
+            background: color-mix(in srgb, var(--card-accent, var(--accent)) 10%, transparent);
+        }
+
+        .board-info { flex: 1; min-width: 0; }
+
+        .board-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #e8e8e8;
+            margin-bottom: 3px;
+        }
+
+        .board-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .board-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 3px;
+            border: 1px solid;
+            flex-shrink: 0;
+        }
+
+        .board-card-1 .board-badge { color: var(--accent); border-color: var(--accent-border); background: var(--accent-dim); }
+        .board-card-2 .board-badge { color: var(--chip2); border-color: rgba(154,125,104,0.22); background: rgba(154,125,104,0.08); }
+        .board-card-3 .board-badge { color: var(--green); border-color: var(--green-border); background: var(--green-dim); }
+
+        .board-radio {
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-hover);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+        }
+
+        .board-card.selected .board-radio {
+            border-color: var(--card-accent, var(--accent));
+        }
+
+        .board-radio-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--card-accent, var(--accent));
+            transform: scale(0);
+            transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .board-card.selected .board-radio-dot { transform: scale(1); }
+
+        .warn-badge {
+            font-size: 0.75rem;
+            color: var(--red);
+            background: var(--red-dim);
+            border: 1px solid var(--red-border);
+            border-radius: 4px;
+            padding: 4px 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .board-card.selected.show-warn .warn-badge { display: block; }
+
+        /* ── PANEL 3: FLASH ── */
+        .flash-summary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+        }
+
+        .flash-summary-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .summary-key { color: var(--text-dim); }
+        .summary-val {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+
+        .summary-val.accent { color: var(--accent); }
+        .summary-val.green { color: var(--green); }
+
+        .flash-box {
+            background: var(--surface);
+            border: 1.5px solid var(--accent-border);
+            border-radius: 10px;
+            padding: 28px 24px;
+            text-align: center;
+        }
+
+        .flash-box-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .flash-box-sub {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 28px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1.5px solid;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #0f0f0f;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #e0b864;
+            border-color: #e0b864;
+            box-shadow: 0 4px 16px rgba(212,168,83,0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text-dim);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--surface2);
+        }
+
+        .btn-arrow { font-size: 0.85rem; transition: transform 0.2s; }
+        .btn-primary:hover:not(:disabled) .btn-arrow { transform: translateX(3px); }
+
+        /* ── FOOTER ── */
+        .footer {
+            margin-top: 64px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-left {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .footer-left a { color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+        .footer-left a:hover { color: var(--accent); }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--green);
+        }
+
+        .status-dot {
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: blink 3s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ── SUCCESS STATE ── */
+        .success-wrap {
+            text-align: center;
+            padding: 48px 24px;
+            animation: panelIn 0.4s ease forwards;
+        }
+
+        .success-icon {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: var(--green-dim);
+            border: 1.5px solid var(--green-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 20px;
+        }
+
+        .success-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .success-sub {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* ── TOOLTIP ── */
+        [data-tip] { position: relative; }
+        [data-tip]:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface3);
+            border: 1px solid var(--border-hover);
+            color: var(--text);
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+            font-family: 'DM Sans', sans-serif;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>ESP Web Flasher</h1>
-        <p>Flash firmware to your ESP32 board directly from your browser using WebSerial.</p>
+<div class="wrapper">
 
-        <div class="warning">
-            <strong>Browser Support:</strong> Please use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> on a desktop computer.
+    <!-- Header -->
+    <div class="eyebrow">Firmware Deployment</div>
+    <h1>ESP Web Flasher</h1>
+    <p class="subtitle">Flash firmware to your ESP32 directly from the browser. No software needed — just a USB cable and Chrome or Edge.</p>
+    <div class="rule"></div>
+
+    <!-- Stepper -->
+    <div class="stepper" id="stepper">
+        <div class="step-item active" id="step-0">
+            <div class="step-circle">01</div>
+            <div class="step-label">Safety</div>
         </div>
-
-        <div class="error">
-            <strong>CRITICAL SAFETY WARNINGS:</strong>
-            <ul>
-                <li><strong>Flashing 16MB firmware to a 4MB board will cause boot failure.</strong> Ensure your hardware matches the selected firmware.</li>
-                <li><strong>ESP32 (Classic) firmware must NOT be flashed to ESP32-C3 and vice versa.</strong> These are different chip architectures.</li>
-            </ul>
+        <div class="step-connector" id="conn-0"><div class="step-connector-fill"></div></div>
+        <div class="step-item" id="step-1">
+            <div class="step-circle">02</div>
+            <div class="step-label">Board</div>
         </div>
-
-        <div class="firmware-section">
-            <h2>Video Player + Audio (CYD – 4MB Flash)</h2>
-            <p>Standard firmware for the default Cheap Yellow Display (CYD) board. Based on ESP32 (classic).</p>
-            <esp-web-install-button manifest="manifest-esp32-4mb.json"></esp-web-install-button>
-        </div>
-
-        <div class="firmware-section">
-            <h2>Video Player + Audio (CYD – 16MB Flash – MODDED BOARD ONLY)</h2>
-            <p>Firmware for CYD boards modded with a 16MB flash chip. <strong>Do not flash to standard boards.</strong> Based on ESP32 (classic).</p>
-            <esp-web-install-button manifest="manifest-esp32-16mb.json"></esp-web-install-button>
-        </div>
-
-        <div class="firmware-section">
-            <h2>Remote Firmware (ESP32-C3)</h2>
-            <p>Firmware for the Remote control board. Based on ESP32-C3 chip.</p>
-            <esp-web-install-button manifest="manifest-esp32c3-remote.json"></esp-web-install-button>
-        </div>
-
-        <div class="footer">
-            Built with <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a>
+        <div class="step-connector" id="conn-1"><div class="step-connector-fill"></div></div>
+        <div class="step-item" id="step-2">
+            <div class="step-circle">03</div>
+            <div class="step-label">Flash</div>
         </div>
     </div>
+
+    <!-- Panel 1: Safety -->
+    <div class="panel active" id="panel-0">
+        <div class="alert warning">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-body">
+                <strong>Browser Support:</strong> Use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> on desktop for WebSerial support.
+            </div>
+        </div>
+        <div class="alert error">
+            <div class="alert-icon">🛑</div>
+            <div class="alert-body">
+                <strong>Critical Safety Warnings:</strong>
+                <ul>
+                    <li><strong>Flashing 16MB firmware to a 4MB board will cause boot failure.</strong> Ensure your hardware matches the selected firmware.</li>
+                    <li><strong>ESP32 (Classic) firmware must NOT be flashed to ESP32-C3 and vice versa.</strong> These are different chip architectures.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="confirm-check" id="safety-check">
+            <div class="check-box">
+                <span class="check-mark">✓</span>
+            </div>
+            <div class="check-label">I have read and understood the safety warnings above, and I know which board and flash size I have.</div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" id="btn-to-board" disabled>
+                Choose Board <span class="btn-arrow">→</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel 2: Board Selection -->
+    <div class="panel" id="panel-1">
+        <div class="section-label">Select Your Board</div>
+
+        <div class="board-grid">
+
+            <div class="board-card board-card-1" data-manifest="manifest-esp32-4mb.json" data-name="CYD — ESP32 Classic, 4MB" data-chip="ESP32 Classic" data-flash="4MB" data-warn="false">
+                <div class="board-radio"><div class="board-radio-dot"></div></div>
+                <div class="board-icon">🖥️</div>
+                <div class="board-info">
+                    <div class="board-name">CYD — 4MB Flash</div>
+                    <div class="board-desc">Standard Cheap Yellow Display. Video Player + Audio.</div>
+                </div>
+                <div class="board-badge">4MB</div>
+            </div>
+
+            <div class="board-card board-card-2" data-manifest="manifest-esp32-16mb.json" data-name="CYD — ESP32 Classic, 16MB" data-chip="ESP32 Classic" data-flash="16MB" data-warn="true">
+                <div class="board-radio"><div class="board-radio-dot"></div></div>
+                <div class="board-icon">🖥️</div>
+                <div class="board-info">
+                    <div class="board-name">CYD — 16MB Flash <span style="font-size:0.7rem;color:var(--chip2)">(Modded)</span></div>
+                    <div class="board-desc">CYD board with 16MB flash chip. Do not flash to standard boards.</div>
+                    <div class="warn-badge">⚠️ Modded board only — verify your flash size first</div>
+                </div>
+                <div class="board-badge">16MB</div>
+            </div>
+
+            <div class="board-card board-card-3" data-manifest="manifest-esp32c3-remote.json" data-name="Remote — ESP32-C3" data-chip="ESP32-C3" data-flash="—" data-warn="false">
+                <div class="board-radio"><div class="board-radio-dot"></div></div>
+                <div class="board-icon">🎮</div>
+                <div class="board-info">
+                    <div class="board-name">Remote Control — ESP32-C3</div>
+                    <div class="board-desc">Remote control board. Different architecture — not compatible with Classic firmware.</div>
+                </div>
+                <div class="board-badge">C3</div>
+            </div>
+
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-ghost" id="btn-back-0">← Back</button>
+            <button class="btn btn-primary" id="btn-to-flash" disabled>
+                Continue <span class="btn-arrow">→</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel 3: Flash -->
+    <div class="panel" id="panel-2">
+        <div class="flash-summary">
+            <div class="flash-summary-label">Selected Configuration</div>
+            <div class="summary-row">
+                <span class="summary-key">Board</span>
+                <span class="summary-val accent" id="sum-board">—</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-key">Chip</span>
+                <span class="summary-val" id="sum-chip">—</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-key">Flash Size</span>
+                <span class="summary-val" id="sum-flash">—</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-key">Manifest</span>
+                <span class="summary-val green" id="sum-manifest">—</span>
+            </div>
+        </div>
+
+        <div class="flash-box">
+            <div class="flash-box-title">Ready to Flash</div>
+            <div class="flash-box-sub">Connect your board via USB, then click the button below.<br>A browser dialog will appear to select the serial port.</div>
+            <div id="flash-btn-container"></div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-ghost" id="btn-back-1">← Change Board</button>
+            <button class="btn btn-ghost" id="btn-restart" style="margin-left:auto">↺ Start Over</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-left">Built with <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a></div>
+        <div class="status"><span class="status-dot"></span>WebSerial Ready</div>
+    </div>
+
+</div>
+
+<script>
+    let currentStep = 0;
+    let safetyConfirmed = false;
+    let selectedBoard = null;
+
+    const panels = [0, 1, 2].map(i => document.getElementById('panel-' + i));
+    const steps = [0, 1, 2].map(i => document.getElementById('step-' + i));
+    const conns = [0, 1].map(i => document.getElementById('conn-' + i));
+
+    function goTo(step) {
+        // Out-animate current panel
+        panels[currentStep].classList.remove('active');
+        panels[currentStep].classList.add('out');
+        setTimeout(() => {
+            panels[currentStep].classList.remove('out');
+        }, 300);
+
+        currentStep = step;
+
+        // Update stepper
+        steps.forEach((s, i) => {
+            s.classList.remove('active', 'done');
+            if (i < step) s.classList.add('done');
+            else if (i === step) s.classList.add('active');
+        });
+
+        conns.forEach((c, i) => {
+            c.classList.toggle('done', i < step);
+        });
+
+        panels[step].classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Step 1: Safety check
+    const safetyCheck = document.getElementById('safety-check');
+    const btnToBoard = document.getElementById('btn-to-board');
+
+    safetyCheck.addEventListener('click', () => {
+        safetyConfirmed = !safetyConfirmed;
+        safetyCheck.classList.toggle('checked', safetyConfirmed);
+        btnToBoard.disabled = !safetyConfirmed;
+    });
+
+    btnToBoard.addEventListener('click', () => goTo(1));
+
+    // Step 2: Board selection
+    const boardCards = document.querySelectorAll('.board-card');
+    const btnToFlash = document.getElementById('btn-to-flash');
+    const btnBack0 = document.getElementById('btn-back-0');
+
+    boardCards.forEach(card => {
+        card.addEventListener('click', () => {
+            boardCards.forEach(c => { c.classList.remove('selected', 'show-warn'); });
+            card.classList.add('selected');
+            if (card.dataset.warn === 'true') card.classList.add('show-warn');
+            selectedBoard = {
+                manifest: card.dataset.manifest,
+                name: card.dataset.name,
+                chip: card.dataset.chip,
+                flash: card.dataset.flash,
+            };
+            btnToFlash.disabled = false;
+        });
+    });
+
+    btnBack0.addEventListener('click', () => goTo(0));
+
+    btnToFlash.addEventListener('click', () => {
+        if (!selectedBoard) return;
+        // Fill summary
+        document.getElementById('sum-board').textContent = selectedBoard.name;
+        document.getElementById('sum-chip').textContent = selectedBoard.chip;
+        document.getElementById('sum-flash').textContent = selectedBoard.flash;
+        document.getElementById('sum-manifest').textContent = selectedBoard.manifest;
+
+        // Create flash button dynamically
+        const container = document.getElementById('flash-btn-container');
+        container.innerHTML = '';
+        const btn = document.createElement('esp-web-install-button');
+        btn.setAttribute('manifest', selectedBoard.manifest);
+        container.appendChild(btn);
+
+        goTo(2);
+    });
+
+    document.getElementById('btn-back-1').addEventListener('click', () => goTo(1));
+    document.getElementById('btn-restart').addEventListener('click', () => {
+        // Reset state
+        safetyConfirmed = false;
+        safetyCheck.classList.remove('checked');
+        btnToBoard.disabled = true;
+        boardCards.forEach(c => c.classList.remove('selected', 'show-warn'));
+        btnToFlash.disabled = true;
+        selectedBoard = null;
+        goTo(0);
+    });
+
+    // Step circle done state: show checkmark
+    const observer = new MutationObserver(() => {
+        steps.forEach(s => {
+            const circle = s.querySelector('.step-circle');
+            if (s.classList.contains('done')) {
+                circle.textContent = '✓';
+            } else if (s.id === 'step-0') circle.textContent = '01';
+            else if (s.id === 'step-1') circle.textContent = '02';
+            else if (s.id === 'step-2') circle.textContent = '03';
+        });
+    });
+
+    steps.forEach(s => observer.observe(s, { attributes: true, attributeFilter: ['class'] }));
+</script>
 </body>
 </html>
