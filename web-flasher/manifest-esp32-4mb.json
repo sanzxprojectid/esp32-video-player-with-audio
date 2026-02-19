@@ -1,0 +1,11 @@
+{
+  "name": "Video Player + Audio (CYD – 4MB Flash)",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "firmware/video_player_with_audio_4mb.bin", "offset": 0 }
+      ]
+    }
+  ]
+}

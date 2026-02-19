@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP Web Flasher</title>
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #000;
+            margin-bottom: 10px;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .firmware-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .firmware-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h2 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 1.4rem;
+        }
+        ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ESP Web Flasher</h1>
+        <p>Flash firmware to your ESP32 board directly from your browser using WebSerial.</p>
+
+        <div class="warning">
+            <strong>Browser Support:</strong> Please use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> on a desktop computer.
+        </div>
+
+        <div class="error">
+            <strong>CRITICAL SAFETY WARNINGS:</strong>
+            <ul>
+                <li><strong>Flashing 16MB firmware to a 4MB board will cause boot failure.</strong> Ensure your hardware matches the selected firmware.</li>
+                <li><strong>ESP32 (Classic) firmware must NOT be flashed to ESP32-C3 and vice versa.</strong> These are different chip architectures.</li>
+            </ul>
+        </div>
+
+        <div class="firmware-section">
+            <h2>Video Player + Audio (CYD – 4MB Flash)</h2>
+            <p>Standard firmware for the default Cheap Yellow Display (CYD) board. Based on ESP32 (classic).</p>
+            <esp-web-install-button manifest="manifest-esp32-4mb.json"></esp-web-install-button>
+        </div>
+
+        <div class="firmware-section">
+            <h2>Video Player + Audio (CYD – 16MB Flash – MODDED BOARD ONLY)</h2>
+            <p>Firmware for CYD boards modded with a 16MB flash chip. <strong>Do not flash to standard boards.</strong> Based on ESP32 (classic).</p>
+            <esp-web-install-button manifest="manifest-esp32-16mb.json"></esp-web-install-button>
+        </div>
+
+        <div class="firmware-section">
+            <h2>Remote Firmware (ESP32-C3)</h2>
+            <p>Firmware for the Remote control board. Based on ESP32-C3 chip.</p>
+            <esp-web-install-button manifest="manifest-esp32c3-remote.json"></esp-web-install-button>
+        </div>
+
+        <div class="footer">
+            Built with <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a>
+        </div>
+    </div>
+</body>
+</html>

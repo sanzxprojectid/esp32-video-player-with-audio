@@ -1,0 +1,11 @@
+{
+  "name": "Remote Firmware (ESP32-C3)",
+  "builds": [
+    {
+      "chipFamily": "ESP32-C3",
+      "parts": [
+        { "path": "firmware/remote.bin", "offset": 0 }
+      ]
+    }
+  ]
+}
